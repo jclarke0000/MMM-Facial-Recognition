@@ -7,9 +7,9 @@
  * MIT Licensed.
  */
 
-Module.register('MMM-Facial-Recognition',{
+ Module.register('MMM-Facial-Recognition',{
 
-	defaults: {
+   defaults: {
 		// 1=LBPH | 2=Fisher | 3=Eigen
 		recognitionAlgorithm: 1,
 		// Threshold for the confidence of a recognized face before it's considered a
@@ -42,47 +42,51 @@ Module.register('MMM-Facial-Recognition',{
 		return {
 			en: "translations/en.json",
 			de: "translations/de.json",
-      			es: "translations/es.json",
-      			zh: "translations/zh.json",
-      			nl: "translations/nl.json",
-			sv: "translations/sv.json",
-			fr: "translations/fr.json",
-			id: "translations/id.json"
-		};
-	},
+      es: "translations/es.json",
+      zh: "translations/zh.json",
+      nl: "translations/nl.json",
+      sv: "translations/sv.json",
+      fr: "translations/fr.json",
+      id: "translations/id.json"
+   };
+ },
 
-	login_user: function () {
+ login_user: function () {
 
-		MM.getModules().withClass(this.config.defaultClass).exceptWithClass(this.config.everyoneClass).enumerate(function(module) {
-			module.hide(1000, function() {
-				Log.log(module.name + ' is hidden.');
-			});
-		});
+  var self = this;
 
-		MM.getModules().withClass(this.current_user).enumerate(function(module) {
-			module.show(1000, function() {
-				Log.log(module.name + ' is shown.');
-			});
-		});
+  MM.getModules().withClass(this.config.defaultClass).exceptWithClass(this.config.everyoneClass).enumerate(function(module) {
+   module.hide(1000, function() {
+    Log.log(module.name + ' is hidden.');
+  }, {lockString: self.identifier});
+ });
 
-		this.sendNotification("CURRENT_USER", this.current_user);
-	},
-	logout_user: function () {
+  MM.getModules().withClass(this.current_user).enumerate(function(module) {
+   module.show(1000, function() {
+    Log.log(module.name + ' is shown.');
+  }, {lockString: self.identifier});
+ });
 
-		MM.getModules().withClass(this.current_user).enumerate(function(module) {
-			module.hide(1000, function() {
-				Log.log(module.name + ' is hidden.');
-			});
-		});
+  this.sendNotification("CURRENT_USER", this.current_user);
+},
+logout_user: function () {
 
-		MM.getModules().withClass(this.config.defaultClass).exceptWithClass(this.config.everyoneClass).enumerate(function(module) {
-			module.show(1000, function() {
-				Log.log(module.name + ' is shown.');
-			});
-		});
+  var self = this;
 
-		this.sendNotification("CURRENT_USER", "None");
-	},
+  MM.getModules().withClass(this.current_user).enumerate(function(module) {
+    module.hide(1000, function() {
+      Log.log(module.name + ' is hidden.');
+    }, {lockString: self.identifier});
+  });
+
+  MM.getModules().withClass(this.config.defaultClass).exceptWithClass(this.config.everyoneClass).enumerate(function(module) {
+    module.show(1000, function() {
+      Log.log(module.name + ' is shown.');
+    }, {lockString: self.identifier});
+  });
+
+  this.sendNotification("CURRENT_USER", "None");
+},
 
 	// Override socket notification handler.
 	socketNotificationReceived: function(notification, payload) {
@@ -112,18 +116,19 @@ Module.register('MMM-Facial-Recognition',{
 
 	notificationReceived: function(notification, payload, sender) {
 		if (notification === 'DOM_OBJECTS_CREATED') {
-			MM.getModules().exceptWithClass("default").enumerate(function(module) {
-				module.hide(1000, function() {
-					Log.log('Module is hidden.');
-				});
-			});
-		}
-	},
+      var self = this;
+      MM.getModules().exceptWithClass("default").enumerate(function(module) {
+        module.hide(1000, function() {
+          Log.log('Module is hidden.');
+        }, {lockString: self.identifier});
+      });
+    }
+  },
 
-	start: function() {
-		this.current_user = null;
-		this.sendSocketNotification('CONFIG', this.config);
-		Log.info('Starting module: ' + this.name);
-	}
+  start: function() {
+    this.current_user = null;
+    this.sendSocketNotification('CONFIG', this.config);
+    Log.info('Starting module: ' + this.name);
+  }
 
 });
